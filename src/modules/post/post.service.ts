@@ -183,10 +183,88 @@ const deletePostById = async (id: number) => {
     });
 };
 
+// get blog stats
+const getBlogStats = async () => {
+    return await prisma.$transaction(async (tx) => {
+        const aggregates = await tx.post.aggregate({
+            _count: true,
+            _sum: { views: true },
+            _avg: { views: true },
+            _min: { views: true },
+            _max: { views: true }
+        });
+
+        // get featured post count
+        const featuredCount = await tx.post.count({
+            where: {
+                isFeatured: true
+            }
+        });
+
+        // get most viewed featured post
+        const topFeatured = await tx.post.findFirst({
+            where: {
+                isFeatured: true
+            },
+            orderBy: {
+                views: 'desc'
+            }
+        });
+
+        // Last week post count
+        const lastWeek = new Date();
+        lastWeek.setDate(lastWeek.getDate() - 7);
+
+        const lastWeekPostCount = await tx.post.count({
+            where: {
+                createdAt: {
+                    gte: lastWeek
+                }
+            }
+        })
+
+
+        return {
+            stats: {
+                totalPosts: aggregates._count,
+                totalViews: aggregates._sum.views || 0,
+                avgViews: aggregates._avg.views || 0,
+                minViews: aggregates._min.views || 0,
+                maxViews: aggregates._max.views || 0
+            },
+            featuredPosts: {
+                count: featuredCount,
+                topPost: topFeatured
+            },
+            // topFeaturedPost: {
+            //     id: topFeatured?.id || null,
+            //     title: topFeatured?.title || null,
+            //     views: topFeatured?.views || null,
+            //     authorId: topFeatured?.authorId || null,
+            //     isFeatured: topFeatured?.isFeatured || null,
+            //     createdAt: topFeatured?.createdAt || null,
+            //     updatedAt: topFeatured?.updatedAt || null,
+            //     deletedAt: topFeatured?.deletedAt || null,
+            //     thumbnail: topFeatured?.thumbnail || null,
+            //     tags: topFeatured?.tags || null,
+            //     published: topFeatured?.published || null,
+            //     content: topFeatured?.content || null,
+            //     requestLink: topFeatured ? `/post/${topFeatured.id}` : null,
+            //     requestMethod: topFeatured ? 'GET' : null,
+            //     description: topFeatured ? 'Get the most viewed featured post' : 'No featured posts found',
+            //     usage: topFeatured ? 'Use the requestLink to get the details of the most viewed featured post' : 'No featured posts found',
+            // },
+
+            lastWeekPostCount
+        };
+    })
+}
+
 export const PostService = {
     createPost,
     getAllPosts,
     getPostById,
     updatePostById,
-    deletePostById
+    deletePostById,
+    getBlogStats
 };
