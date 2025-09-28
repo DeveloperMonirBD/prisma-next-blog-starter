@@ -19,8 +19,12 @@ This project is designed for the **Next Level Web Development Bootcamp** to help
 Clone the repository:
 
 ```bash
-git clone https://github.com/Apollo-Level2-Web-Dev/next-blog-starter.git
-cd next-blog-starter
+git clone --branch part-2 https://github.com/Apollo-Level2-Web-Dev/next-blog-server.git
+
+npm install @prisma/client
+npx prisma generate
+npx prisma migrate dev
+npm run dev
 ```
 
 Install dependencies:

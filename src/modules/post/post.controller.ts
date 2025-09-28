@@ -5,7 +5,8 @@ import { PostService } from './post.service';
 const createPost = async (req: Request, res: Response) => {
     try {
         const result = await PostService.createPost(req.body);
-
+        console.log(result)
+        
         res.status(201).json({
             success: true,
             message: 'Post created successfully',
@@ -24,7 +25,7 @@ const createPost = async (req: Request, res: Response) => {
 const getAllPosts = async (req: Request, res: Response) => {
     try {
         const page = Number(req.query.page) || 1;
-        const limit = Number(req.query.limit) || 10;
+        const limit = Number(req.query.limit) || 30;
         const search = (req.query.search as string) || '';
         const isFeatured = req.query.isFeatured ? req.query.isFeatured === 'true' : undefined;
         const tags = req.query.tags ? (req.query.tags as string).split(',') : [];
